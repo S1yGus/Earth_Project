@@ -7,7 +7,6 @@
 #include "EPCoreTypes.h"
 #include "EPEarth.generated.h"
 
-class USkyAtmosphereComponent;
 class USpringArmComponent;
 class UCameraComponent;
 
@@ -23,13 +22,13 @@ public:
 
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-    USkyAtmosphereComponent* SkyAtmosphereComponent;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UStaticMeshComponent* EarthMeshComponent;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UStaticMeshComponent* CloudsMeshComponent;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    UStaticMeshComponent* AtmosphereMeshComponent;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     USpringArmComponent* SpringArmComponent;
@@ -37,12 +36,16 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UCameraComponent* CameraComponent;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Clouds")
+    float CloudsRotationSpeed = 0.001f;
+
     virtual void BeginPlay() override;
 
 private:
     bool bCanRotate = false;
     bool bAllowInput = false;
     float TargetArmLength = 0;
+    FTimerHandle CloudsRotationTimerHandle;
     FTimerHandle ZoomTimerHandle;
 
     void Setup();
@@ -52,6 +55,7 @@ private:
     void LookY(float Amount);
     void Zoom(float ZoomDelta);
 
+    void OnCloudsRotation();
     void OnZoom();
     void OnGameStateChanged(EGameState NewGameState);
     void OnAspectRatioChanged(const FAspectRatioData& NewAspectRatioData);

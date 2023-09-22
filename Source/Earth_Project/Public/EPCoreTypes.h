@@ -75,3 +75,5 @@ DECLARE_MULTICAST_DELEGATE(FOnPressedEscSignature);
 DECLARE_MULTICAST_DELEGATE(FOnPressedEnterSignature);
 DECLARE_MULTICAST_DELEGATE(FOnResolutionChangedSignature);
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnAspectRatioChangedSignature, const FAspectRatioData&);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnSpeedChangedSignature, float);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnTimeChangedSignature, float);

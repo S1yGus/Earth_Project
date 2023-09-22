@@ -1,47 +1,49 @@
 // Earth_Project, All rights reserved.
 
 #include "Pawns/EPEarth.h"
-#include "Components/SkyAtmosphereComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Settings/EPGameUserSettings.h"
 #include "EPGameMode.h"
 
-constexpr static float MinArmLength = 24000000.0f;
-constexpr static float MaxArmLength = 36000000.0f;
-constexpr static float ZoomStep = 1000000.0f;
-constexpr static float ZoomTimerRate = 0.016f;
-constexpr static int32 ZoomInterpSpeed = 12;
+constexpr static float MinArmLength = 1300000.0f;
+constexpr static float MaxArmLength = 3500000.0f;
+constexpr static float ZoomStep = 100000.0f;
+constexpr static float TimerRate = 0.016f;
+constexpr static int32 ZoomInterpSpeed = 6;
 
 AEPEarth::AEPEarth()
 {
     PrimaryActorTick.bCanEverTick = false;
 
-    SkyAtmosphereComponent = CreateDefaultSubobject<USkyAtmosphereComponent>("Atmosphere");
-    SkyAtmosphereComponent->BottomRadius = 100.0f;
-    SkyAtmosphereComponent->RayleighExponentialDistribution = 2.0f;
+    AtmosphereMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Atmosphere");
+    AtmosphereMeshComponent->CastShadow = false;
+    AtmosphereMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    AtmosphereMeshComponent->SetGenerateOverlapEvents(false);
+    AtmosphereMeshComponent->SetRelativeScale3D(FVector{10450.0f});
+    AtmosphereMeshComponent->SetupAttachment(GetRootComponent());
 
     EarthMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Earth");
     EarthMeshComponent->CastShadow = false;
-    EarthMeshComponent->SetRelativeLocation(FVector{0.0f, 0.0f, -10000000.0f});
+    EarthMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    EarthMeshComponent->SetGenerateOverlapEvents(false);
     EarthMeshComponent->SetRelativeScale3D(FVector{10000.0f});
-    EarthMeshComponent->SetupAttachment(SkyAtmosphereComponent);
+    EarthMeshComponent->SetupAttachment(GetRootComponent());
 
     CloudsMeshComponent = CreateDefaultSubobject<UStaticMeshComponent>("Clouds");
     CloudsMeshComponent->CastShadow = false;
-    CloudsMeshComponent->SetRelativeLocation(FVector{0.0f, 0.0f, -10000000.0f});
-    CloudsMeshComponent->SetRelativeScale3D(FVector{10150.0f});
-    CloudsMeshComponent->SetupAttachment(SkyAtmosphereComponent);
+    CloudsMeshComponent->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+    CloudsMeshComponent->SetGenerateOverlapEvents(false);
+    CloudsMeshComponent->SetRelativeScale3D(FVector{10080.0f});
+    CloudsMeshComponent->SetupAttachment(GetRootComponent());
 
     SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArm");
+    SpringArmComponent->TargetArmLength = 2000000.0f;
     SpringArmComponent->SetupAttachment(EarthMeshComponent);
-    SpringArmComponent->TargetArmLength = 30000000.0f;
 
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
-    CameraComponent->SetupAttachment(SpringArmComponent);
     CameraComponent->bConstrainAspectRatio = true;
-
-    SetRootComponent(SkyAtmosphereComponent);
+    CameraComponent->SetupAttachment(SpringArmComponent);
 }
 
 void AEPEarth::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -64,13 +66,15 @@ void AEPEarth::BeginPlay()
 {
     Super::BeginPlay();
 
-    check(SkyAtmosphereComponent);
+    check(AtmosphereMeshComponent);
     check(EarthMeshComponent);
     check(CloudsMeshComponent);
     check(SpringArmComponent);
     check(CameraComponent);
 
     Setup();
+
+    GetWorldTimerManager().SetTimer(CloudsRotationTimerHandle, this, &ThisClass::OnCloudsRotation, TimerRate, true);
 }
 
 void AEPEarth::Setup()
@@ -114,8 +118,13 @@ void AEPEarth::Zoom(float ZoomDelta)
 
     if (!ZoomTimerHandle.IsValid())
     {
-        GetWorldTimerManager().SetTimer(ZoomTimerHandle, this, &ThisClass::OnZoom, ZoomTimerRate, true);
+        GetWorldTimerManager().SetTimer(ZoomTimerHandle, this, &ThisClass::OnZoom, TimerRate, true);
     }
+}
+
+void AEPEarth::OnCloudsRotation()
+{
+    CloudsMeshComponent->AddRelativeRotation(FRotator{0.0f, CloudsRotationSpeed, 0.0f});
 }
 
 void AEPEarth::OnZoom()
@@ -126,7 +135,7 @@ void AEPEarth::OnZoom()
         return;
     }
 
-    SpringArmComponent->TargetArmLength = FMath::FInterpTo(SpringArmComponent->TargetArmLength, TargetArmLength, ZoomTimerRate, ZoomInterpSpeed);
+    SpringArmComponent->TargetArmLength = FMath::FInterpTo(SpringArmComponent->TargetArmLength, TargetArmLength, TimerRate, ZoomInterpSpeed);
 }
 
 void AEPEarth::OnGameStateChanged(EGameState NewGameState)
