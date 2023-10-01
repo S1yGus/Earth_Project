@@ -28,7 +28,6 @@ void UEPSliderSettingUserWidget::Update()
         return;
 
     SettingSlider->SetValue(Setting->GetCurrentValue());
-
     UpdatePercentText();
 }
 

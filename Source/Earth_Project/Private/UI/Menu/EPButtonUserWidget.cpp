@@ -14,7 +14,12 @@ void UEPButtonUserWidget::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
 
-    Setup();
+    check(Button);
+    check(ButtonTextBlock);
+
+    Button->OnClicked.AddDynamic(this, &ThisClass::OnClicked);
+    Button->OnHovered.AddDynamic(this, &ThisClass::OnHovered);
+    Button->OnUnhovered.AddDynamic(this, &ThisClass::OnUnhovered);
 }
 
 void UEPButtonUserWidget::NativePreConstruct()
@@ -22,16 +27,6 @@ void UEPButtonUserWidget::NativePreConstruct()
     Super::NativePreConstruct();
 
     ButtonTextBlock->SetText(ButtonText);
-}
-
-void UEPButtonUserWidget::Setup()
-{
-    check(Button);
-    check(ButtonTextBlock);
-
-    Button->OnClicked.AddDynamic(this, &ThisClass::OnClicked);
-    Button->OnHovered.AddDynamic(this, &ThisClass::OnHovered);
-    Button->OnUnhovered.AddDynamic(this, &ThisClass::OnUnhovered);
 }
 
 void UEPButtonUserWidget::OnClicked()

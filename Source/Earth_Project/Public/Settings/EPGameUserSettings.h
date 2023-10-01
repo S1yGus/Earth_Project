@@ -24,8 +24,8 @@ public:
     UEPGameUserSettings();
 
     static UEPGameUserSettings* Get();
-    inline const TArray<UEPSetting*>& GetVideoSettings() const { return VideoSettings; }
-    inline const TArray<UEPSetting*>& GetSoundSettings() const { return SoundSettings; }
+    const TArray<UEPSetting*>& GetVideoSettings() const { return VideoSettings; }
+    const TArray<UEPSetting*>& GetSoundSettings() const { return SoundSettings; }
     const FAspectRatioData& GetAspectRatio() const;
 
     void SetLastConfirmedResolutionSettings();
@@ -37,14 +37,14 @@ public:
 
 private:
     UPROPERTY()
-    TArray<UEPSetting*> VideoSettings;
+    TArray<TObjectPtr<UEPSetting>> VideoSettings;
     UPROPERTY()
-    UEPIntSetting* ResolutionSetting;
+    TObjectPtr<UEPIntSetting> ResolutionSetting;
     UPROPERTY()
-    TArray<UEPSetting*> SoundSettings;
+    TArray<TObjectPtr<UEPSetting>> SoundSettings;
 
     UPROPERTY()
-    UEPSettingsSave* SettingsSave;
+    TObjectPtr<UEPSettingsSave> SettingsSave;
 
     void InitVideoSettings();
     void InitSoundSettings();
@@ -57,17 +57,16 @@ private:
 
     void CheckSettingsSave();
 
-    inline UEPIntSetting* CreateIntSetting(const FText& Name, const TArray<FText>& Options, TArray<UEPSetting*>& AddTo);
-    inline UEPFloatSetting* CreateFloatSetting(const FText& Name, TArray<UEPSetting*>& AddTo);
+    FORCEINLINE UEPIntSetting* CreateIntSetting(const FText& Name, const TArray<FText>& Options, TArray<TObjectPtr<UEPSetting>>& AddTo);
+    FORCEINLINE UEPFloatSetting* CreateFloatSetting(const FText& Name, TArray<TObjectPtr<UEPSetting>>& AddTo);
 
     template <class T>
-    T* CreateSetting(const FText& Name, TArray<UEPSetting*>& AddTo)
+    T* CreateSetting(const FText& Name, TArray<TObjectPtr<UEPSetting>>& AddTo)
     {
         T* Setting = NewObject<T>();
         checkf(Setting->IsA(UEPSetting::StaticClass()), TEXT("T must be based on UEPSetting"));
         Setting->SetName(Name);
         AddTo.Add(Setting);
-
         return Setting;
     }
 };

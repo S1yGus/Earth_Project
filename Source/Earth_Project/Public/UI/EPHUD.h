@@ -14,9 +14,6 @@ class EARTH_PROJECT_API AEPHUD : public AHUD
 {
     GENERATED_BODY()
 
-public:
-    inline UUserWidget* GetCurretnWidget() { return CurrentWidget; }
-
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
     TSubclassOf<UUserWidget> MenuWidgetClass;
@@ -31,14 +28,14 @@ protected:
     TSubclassOf<UUserWidget> HUDWidgetClass;
 
     UPROPERTY()
-    TMap<EGameState, UUserWidget*> GameWidgets;
-
-    UPROPERTY()
-    UUserWidget* CurrentWidget;
+    TMap<EGameState, TObjectPtr<UUserWidget>> GameWidgets;
 
     virtual void BeginPlay() override;
     virtual void SetupWidgets();
 
 private:
+    UPROPERTY()
+    TObjectPtr<UUserWidget> CurrentWidget;
+
     void OnGameStateChanged(EGameState GameState);
 };

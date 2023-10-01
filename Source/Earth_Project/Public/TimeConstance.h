@@ -1,3 +1,5 @@
+// Earth_Project, All rights reserved.
+
 #pragma once
 
 namespace TimeConstance

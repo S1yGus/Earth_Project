@@ -20,22 +20,19 @@ public:
 
 protected:
     UPROPERTY(Meta = (BindWidget))
-    UEPButtonUserWidget* SaveButton;
+    TObjectPtr<UEPButtonUserWidget> SaveButton;
 
     UPROPERTY(Meta = (BindWidget))
-    UEPButtonUserWidget* CancelButton;
+    TObjectPtr<UEPButtonUserWidget> CancelButton;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
-    float CancelSettingsTime = 10.0f;
+    float CancelSettingsTime{10.0f};
 
     virtual void NativeOnInitialized() override;
     virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 private:
-    float CountdownTime = 0.0f;
-
-    void Setup();
-    void ResetWidget();
+    float CountdownTime{0.0f};
 
     void OnGameStateChanged(EGameState NewGameState);
     void OnPressedEnter();

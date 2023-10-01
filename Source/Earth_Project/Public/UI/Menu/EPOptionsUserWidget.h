@@ -5,9 +5,9 @@
 #include "CoreMinimal.h"
 #include "UI/EPAnimatedUserWidget.h"
 #include "EPCoreTypes.h"
+#include "Components/VerticalBox.h"
 #include "EPOptionsUserWidget.generated.h"
 
-class UVerticalBox;
 class UEPButtonUserWidget;
 class UEPComboBoxSettingUserWidget;
 class UEPSliderSettingUserWidget;
@@ -20,13 +20,13 @@ class EARTH_PROJECT_API UEPOptionsUserWidget : public UEPAnimatedUserWidget
 
 protected:
     UPROPERTY(Meta = (BindWidget))
-    UVerticalBox* VideoSettingsVerticalBox;
+    TObjectPtr<UVerticalBox> VideoSettingsVerticalBox;
 
     UPROPERTY(Meta = (BindWidget))
-    UVerticalBox* SoundSettingsVerticalBox;
+    TObjectPtr<UVerticalBox> SoundSettingsVerticalBox;
 
     UPROPERTY(Meta = (BindWidget))
-    UEPButtonUserWidget* BackButton;
+    TObjectPtr<UEPButtonUserWidget> BackButton;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
     TSubclassOf<UEPComboBoxSettingUserWidget> ComboBoxSettingWidgetClass;
@@ -37,13 +37,10 @@ protected:
     virtual void NativeOnInitialized() override;
 
 private:
-    EGameState GameStateToSet = EGameState::Options;
+    EGameState GameStateToSet{EGameState::Options};
 
-    void InitSettingsWidgets(const TArray<UEPSetting*>& SettingsArray, UVerticalBox* VerticalBox);
-
-    void Setup();
-
-    void ResetWidget();
+    void InitSettingsWidgets(const TArray<UEPSetting*>& SettingsArray, UVerticalBox* Container);
+    void UpdateWidgetsInContainer(const UVerticalBox* Container);
     void UpdateOptions();
 
     void ChangeGameState(EGameState NewGameState);
@@ -54,4 +51,13 @@ private:
     void OnClickedBackButton();
 
     virtual void OnAnimationFinished_Implementation(const UWidgetAnimation* Animation) override;
+
+    template <class WidgetClass, class SettingClass>
+    void CreateAndAddSettingsWidget(TSubclassOf<UUserWidget> SettingWidgetClass, SettingClass* Setting, UVerticalBox* Container)
+    {
+        WidgetClass* SettingWidget = CreateWidget<WidgetClass>(GetWorld(), SettingWidgetClass);
+        check(SettingWidget);
+        SettingWidget->Init(Setting);
+        Container->AddChild(SettingWidget);
+    }
 };

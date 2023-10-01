@@ -13,7 +13,7 @@ void UEPGameInstance::OnStart()
 {
     Super::OnStart();
 
-    if (const auto GameUserSettings = UEPGameUserSettings::Get())
+    if (auto* GameUserSettings = UEPGameUserSettings::Get())
     {
         GameUserSettings->InitSoundVolume();
     }

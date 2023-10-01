@@ -7,7 +7,7 @@ void UEPHUDUserWidget::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
 
-    if (const auto PC = GetOwningPlayer<AEPPlayerController>())
+    if (auto* PC = GetOwningPlayer<AEPPlayerController>())
     {
         PC->OnPressedEsc.AddUObject(this, &ThisClass::OnPressedEsc);
     }
@@ -25,8 +25,8 @@ void UEPHUDUserWidget::OnAnimationFinished_Implementation(const UWidgetAnimation
 {
     Super::OnAnimationFinished_Implementation(Animation);
 
-    if (Animation != FadeoutAnimation)
-        return;
-
-    SetGameState(EGameState::Menu);
+    if (Animation == FadeoutAnimation)
+    {
+        SetGameState(EGameState::Menu);
+    }
 }
