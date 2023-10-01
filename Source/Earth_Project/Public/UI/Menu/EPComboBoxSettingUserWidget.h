@@ -22,13 +22,13 @@ public:
 
 protected:
     UPROPERTY(Meta = (BindWidget))
-    UTextBlock* SettingNameText;
+    TObjectPtr<UTextBlock> SettingNameText;
 
     UPROPERTY(Meta = (BindWidget))
-    UComboBoxString* SettingComboBox;
+    TObjectPtr<UComboBoxString> SettingComboBox;
 
     UPROPERTY()
-    UEPIntSetting* Setting;
+    TObjectPtr<UEPIntSetting> Setting;
 
     virtual void NativeOnInitialized() override;
 

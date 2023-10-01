@@ -6,7 +6,6 @@
 #include "Settings/EPFloatSetting.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetInternationalizationLibrary.h"
 #include "Saves/EPSettingsSave.h"
 #include "AudioDevice.h"
 #include "AudioThread.h"
@@ -29,9 +28,9 @@ using namespace SettingsConstants;
         SettingsSave->SoundSettings.VolumeType = NewValue; \
     }
 
-static bool operator==(const FText& Text1, const FText& Text2)
+static bool operator==(const FText& LHS, const FText& RHS)
 {
-    return Text1.ToString() == Text2.ToString();
+    return LHS.ToString() == RHS.ToString();
 }
 
 static bool operator==(const FCultureData& Data, const FString& Str)
@@ -88,7 +87,7 @@ void UEPGameUserSettings::SaveSettings()
 void UEPGameUserSettings::InitVideoSettings()
 {
     {
-        auto Setting = CreateIntSetting(LOCTEXT("ScreenMode_Loc", "Screen mode"), FullscreenOptions, VideoSettings);
+        auto* Setting = CreateIntSetting(LOCTEXT("ScreenMode_Loc", "Screen mode"), FullscreenOptions, VideoSettings);
         Setting->AddGetter(
             [&]()
             {
@@ -112,7 +111,7 @@ void UEPGameUserSettings::InitVideoSettings()
                 {
                     return INDEX_NONE;
                 }
-                const auto CurrentResolution = GetScreenResolution();
+                const FIntPoint CurrentResolution = GetScreenResolution();
                 const auto Option = FText::FromString(FString::Printf(TEXT("%d x %d"), CurrentResolution.X, CurrentResolution.Y));
                 return ResolutionSetting->GetOptions().IndexOfByKey(Option);
             });
@@ -122,7 +121,7 @@ void UEPGameUserSettings::InitVideoSettings()
                 FString LeftS, RightS;
                 if (ResolutionSetting->GetOptions()[NewValue].ToString().Split(" x ", &LeftS, &RightS))
                 {
-                    FIntPoint NewResolution = FIntPoint(FCString::Atoi(*LeftS), FCString::Atoi(*RightS));
+                    const FIntPoint NewResolution{FCString::Atoi(*LeftS), FCString::Atoi(*RightS)};
                     SetScreenResolution(NewResolution);
                     ApplyResolutionSettings(false);
                     OnResolutionChanged.Broadcast();
@@ -131,7 +130,7 @@ void UEPGameUserSettings::InitVideoSettings()
     }
 
     {
-        auto Setting = CreateIntSetting(LOCTEXT("VSync_Loc", "V-Sync"), VSyncOptions, VideoSettings);
+        auto* Setting = CreateIntSetting(LOCTEXT("VSync_Loc", "V-Sync"), VSyncOptions, VideoSettings);
         Setting->AddGetter(
             [&]()
             {
@@ -146,7 +145,7 @@ void UEPGameUserSettings::InitVideoSettings()
     }
 
     {
-        auto Setting = CreateIntSetting(LOCTEXT("FramerateLimit_Loc", "Framerate limit"), FramerateOptions, VideoSettings);
+        auto* Setting = CreateIntSetting(LOCTEXT("FramerateLimit_Loc", "Framerate limit"), FramerateOptions, VideoSettings);
         Setting->AddGetter(
             [&]()
             {
@@ -169,7 +168,7 @@ void UEPGameUserSettings::InitVideoSettings()
             AspectRatioOptions.Add(Data.DisplayName);
         }
 
-        auto Setting = CreateIntSetting(LOCTEXT("AspectRatio_Loc", "Aspect ratio"), AspectRatioOptions, VideoSettings);
+        auto* Setting = CreateIntSetting(LOCTEXT("AspectRatio_Loc", "Aspect ratio"), AspectRatioOptions, VideoSettings);
         Setting->AddGetter(
             [&, AspectRatioOptions]() -> int32
             {
@@ -188,7 +187,7 @@ void UEPGameUserSettings::InitVideoSettings()
     }
 
     {
-        auto Setting = CreateIntSetting(LOCTEXT("GraphicsQuality_Loc", "Quality"), GraphicsQualityOptions, VideoSettings);
+        auto* Setting = CreateIntSetting(LOCTEXT("GraphicsQuality_Loc", "Quality"), GraphicsQualityOptions, VideoSettings);
         Setting->AddGetter(
             [&]()
             {
@@ -206,25 +205,25 @@ void UEPGameUserSettings::InitVideoSettings()
 void UEPGameUserSettings::InitSoundSettings()
 {
     {
-        auto Setting = CreateFloatSetting(LOCTEXT("MasterVolume_Loc", "Master"), SoundSettings);
+        auto* Setting = CreateFloatSetting(LOCTEXT("MasterVolume_Loc", "Master"), SoundSettings);
         Setting->AddGetter(BIND_SOUND_GETTER(MasterVolume));
         Setting->AddSetter(BIND_SOUND_SETTER(SCMasterName, MasterVolume));
     }
 
     {
-        auto Setting = CreateFloatSetting(LOCTEXT("UIVolume_Loc", "Interface"), SoundSettings);
+        auto* Setting = CreateFloatSetting(LOCTEXT("UIVolume_Loc", "Interface"), SoundSettings);
         Setting->AddGetter(BIND_SOUND_GETTER(UIVolume));
         Setting->AddSetter(BIND_SOUND_SETTER(SCUIName, UIVolume));
     }
 
     {
-        auto Setting = CreateFloatSetting(LOCTEXT("FXVolume_Loc", "Effects"), SoundSettings);
+        auto* Setting = CreateFloatSetting(LOCTEXT("FXVolume_Loc", "Effects"), SoundSettings);
         Setting->AddGetter(BIND_SOUND_GETTER(FXVolume));
         Setting->AddSetter(BIND_SOUND_SETTER(SCFXName, FXVolume));
     }
 
     {
-        auto Setting = CreateFloatSetting(LOCTEXT("MusicVolume_Loc", "Music"), SoundSettings);
+        auto* Setting = CreateFloatSetting(LOCTEXT("MusicVolume_Loc", "Music"), SoundSettings);
         Setting->AddGetter(BIND_SOUND_GETTER(MusicVolume));
         Setting->AddSetter(BIND_SOUND_SETTER(SCMusicName, MusicVolume));
     }
@@ -232,8 +231,7 @@ void UEPGameUserSettings::InitSoundSettings()
 
 const TArray<FText> UEPGameUserSettings::GetScreenResolutions() const
 {
-    const auto ScreenMode = GetFullscreenMode();
-
+    const EWindowMode::Type ScreenMode = GetFullscreenMode();
     TArray<FIntPoint> Resolutions;
     if (ScreenMode == EWindowMode::Windowed)
     {
@@ -291,18 +289,15 @@ void UEPGameUserSettings::SetSoundClassVolume(const FString& SoundClassName, flo
     FAudioThread::RunCommandOnAudioThread(
         [=]()
         {
-            if (!GEngine)
-                return;
-
-            auto ADevice = GEngine->GetMainAudioDevice();
-            if (!ADevice)
-                return;
-
-            for (const auto& [SoundClass, SoundClassProperties] : ADevice->GetSoundClassPropertyMap())
+            if (GEngine)
             {
-                if (SoundClass && SoundClass->GetFullName().Find(SoundClassName) != INDEX_NONE)
+                const FAudioDeviceHandle ADevice = GEngine->GetMainAudioDevice();
+                for (const auto& [SoundClass, SoundClassProperties] : ADevice->GetSoundClassPropertyMap())
                 {
-                    SoundClass->Properties.Volume = NewVolume;
+                    if (SoundClass && SoundClass->GetFullName().Find(SoundClassName) != INDEX_NONE)
+                    {
+                        SoundClass->Properties.Volume = NewVolume;
+                    }
                 }
             }
         });
@@ -327,19 +322,17 @@ void UEPGameUserSettings::CheckSettingsSave()
     check(SettingsSave);
 }
 
-UEPIntSetting* UEPGameUserSettings::CreateIntSetting(const FText& Name, const TArray<FText>& Options, TArray<UEPSetting*>& AddTo)
+UEPIntSetting* UEPGameUserSettings::CreateIntSetting(const FText& Name, const TArray<FText>& Options, TArray<TObjectPtr<UEPSetting>>& AddTo)
 {
-    const auto Setting = CreateSetting<UEPIntSetting>(Name, AddTo);
+    auto* Setting = CreateSetting<UEPIntSetting>(Name, AddTo);
     Setting->SetOptions(Options);
 
     return Setting;
 }
 
-UEPFloatSetting* UEPGameUserSettings::CreateFloatSetting(const FText& Name, TArray<UEPSetting*>& AddTo)
+UEPFloatSetting* UEPGameUserSettings::CreateFloatSetting(const FText& Name, TArray<TObjectPtr<UEPSetting>>& AddTo)
 {
-    const auto Setting = CreateSetting<UEPFloatSetting>(Name, AddTo);
-
-    return Setting;
+    return CreateSetting<UEPFloatSetting>(Name, AddTo);
 }
 
 #undef LOCTEXT_NAMESPACE

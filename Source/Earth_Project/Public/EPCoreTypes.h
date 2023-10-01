@@ -45,16 +45,16 @@ struct FSoundSettings
     GENERATED_USTRUCT_BODY()
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings", Meta = (ClampMin = "0.0", ClampMax = "1.0"))
-    float MasterVolume = 0.5f;
+    float MasterVolume{0.5f};
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings", Meta = (ClampMin = "0.0", ClampMax = "1.0"))
-    float UIVolume = 0.5f;
+    float UIVolume{0.5f};
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings", Meta = (ClampMin = "0.0", ClampMax = "1.0"))
-    float FXVolume = 0.5f;
+    float FXVolume{0.5f};
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Settings", Meta = (ClampMin = "0.0", ClampMax = "1.0"))
-    float MusicVolume = 0.5f;
+    float MusicVolume{0.5f};
 };
 
 USTRUCT(BlueprintType)

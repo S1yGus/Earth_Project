@@ -8,14 +8,32 @@
 
 FText UEPOptionsWarningUserWidget::GetCountdownTime() const
 {
-    return FText::AsNumber(static_cast<int32>(CountdownTime));
+    return FText::AsNumber(FMath::RoundToInt(CountdownTime));
 }
 
 void UEPOptionsWarningUserWidget::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
 
-    Setup();
+    check(SaveButton);
+    check(CancelButton);
+
+    SaveButton->OnClickedButton.AddUObject(this, &ThisClass::OnSaveSettings);
+    CancelButton->OnClickedButton.AddUObject(this, &ThisClass::OnCancelSettings);
+
+    if (GetWorld())
+    {
+        if (auto* GameMode = GetWorld()->GetAuthGameMode<AEPGameMode>())
+        {
+            GameMode->OnGameStateChanged.AddUObject(this, &ThisClass::OnGameStateChanged);
+        }
+    }
+
+    if (auto* PC = GetOwningPlayer<AEPPlayerController>())
+    {
+        PC->OnPressedEnt.AddUObject(this, &ThisClass::OnPressedEnter);
+        PC->OnPressedEsc.AddUObject(this, &ThisClass::OnPressedEsc);
+    }
 }
 
 void UEPOptionsWarningUserWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -29,37 +47,12 @@ void UEPOptionsWarningUserWidget::NativeTick(const FGeometry& MyGeometry, float 
     }
 }
 
-void UEPOptionsWarningUserWidget::Setup()
-{
-    check(SaveButton);
-    check(CancelButton);
-
-    SaveButton->OnClickedButton.AddUObject(this, &ThisClass::OnSaveSettings);
-    CancelButton->OnClickedButton.AddUObject(this, &ThisClass::OnCancelSettings);
-
-    if (const auto GameMode = GetWorld()->GetAuthGameMode<AEPGameMode>())
-    {
-        GameMode->OnGameStateChanged.AddUObject(this, &ThisClass::OnGameStateChanged);
-    }
-
-    if (const auto PC = GetOwningPlayer<AEPPlayerController>())
-    {
-        PC->OnPressedEnt.AddUObject(this, &ThisClass::OnPressedEnter);
-        PC->OnPressedEsc.AddUObject(this, &ThisClass::OnPressedEsc);
-    }
-}
-
-void UEPOptionsWarningUserWidget::ResetWidget()
-{
-    CountdownTime = CancelSettingsTime;
-}
-
 void UEPOptionsWarningUserWidget::OnGameStateChanged(EGameState NewGameState)
 {
-    if (NewGameState != EGameState::OptionsWarning)
-        return;
-
-    ResetWidget();
+    if (NewGameState == EGameState::OptionsWarning)
+    {
+        CountdownTime = CancelSettingsTime;
+    }
 }
 
 void UEPOptionsWarningUserWidget::OnPressedEnter()
@@ -80,32 +73,28 @@ void UEPOptionsWarningUserWidget::OnPressedEsc()
 
 void UEPOptionsWarningUserWidget::OnSaveSettings()
 {
-    const auto GameUserSettings = UEPGameUserSettings::Get();
-    if (!GameUserSettings)
-        return;
-
-    GameUserSettings->ConfirmVideoMode();
-
-    ShowFadeoutAnimation();
+    if (auto* GameUserSettings = UEPGameUserSettings::Get())
+    {
+        GameUserSettings->ConfirmVideoMode();
+        ShowFadeoutAnimation();
+    }
 }
 
 void UEPOptionsWarningUserWidget::OnCancelSettings()
 {
-    const auto GameUserSettings = UEPGameUserSettings::Get();
-    if (!GameUserSettings)
-        return;
-
-    GameUserSettings->SetLastConfirmedResolutionSettings();
-
-    ShowFadeoutAnimation();
+    if (auto* GameUserSettings = UEPGameUserSettings::Get())
+    {
+        GameUserSettings->SetLastConfirmedResolutionSettings();
+        ShowFadeoutAnimation();
+    }
 }
 
 void UEPOptionsWarningUserWidget::OnAnimationFinished_Implementation(const UWidgetAnimation* Animation)
 {
     Super::OnAnimationFinished_Implementation(Animation);
 
-    if (Animation != FadeoutAnimation)
-        return;
-
-    SetGameState(EGameState::Options);
+    if (Animation == FadeoutAnimation)
+    {
+        SetGameState(EGameState::Options);
+    }
 }

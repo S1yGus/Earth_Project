@@ -16,23 +16,20 @@ class EARTH_PROJECT_API UEPMenuUserWidget : public UEPAnimatedUserWidget
 
 protected:
     UPROPERTY(Meta = (BindWidget))
-    UEPButtonUserWidget* StartButton;
+    TObjectPtr<UEPButtonUserWidget> StartButton;
 
     UPROPERTY(Meta = (BindWidget))
-    UEPButtonUserWidget* OptionsButton;
+    TObjectPtr<UEPButtonUserWidget> OptionsButton;
 
     UPROPERTY(Meta = (BindWidget))
-    UEPButtonUserWidget* QuitButton;
+    TObjectPtr<UEPButtonUserWidget> QuitButton;
 
     virtual void NativeOnInitialized() override;
 
 private:
-    EGameState GameStateToSet = EGameState::Menu;
+    EGameState GameStateToSet{EGameState::Menu};
 
-    void Setup();
-    void ResetWidget();
-
-    void ChangeGameState(EGameState NewGameState);
+    FORCEINLINE void ChangeGameStateWithAnimation(EGameState NewGameState);
 
     void OnGameStateChanged(EGameState NewGameState);
     void OnPressedEsc();

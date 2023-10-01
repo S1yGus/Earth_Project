@@ -21,30 +21,30 @@ public:
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 protected:
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-    UStaticMeshComponent* EarthMeshComponent;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    TObjectPtr<UStaticMeshComponent> EarthMeshComponent;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-    UStaticMeshComponent* CloudsMeshComponent;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    TObjectPtr<UStaticMeshComponent> CloudsMeshComponent;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-    UStaticMeshComponent* AtmosphereMeshComponent;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    TObjectPtr<UStaticMeshComponent> AtmosphereMeshComponent;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-    USpringArmComponent* SpringArmComponent;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    TObjectPtr<USpringArmComponent> SpringArmComponent;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-    UCameraComponent* CameraComponent;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    TObjectPtr<UCameraComponent> CameraComponent;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Clouds")
-    float CloudsRotationSpeed = 0.001f;
+    float CloudsRotationSpeed{0.001f};
 
     virtual void BeginPlay() override;
 
 private:
-    bool bCanRotate = false;
-    bool bAllowInput = false;
-    float TargetArmLength = 0;
+    bool bCanRotate{false};
+    bool bAllowInput{false};
+    float TargetArmLength{0};
     FTimerHandle CloudsRotationTimerHandle;
     FTimerHandle ZoomTimerHandle;
 

@@ -22,16 +22,16 @@ public:
 
 protected:
     UPROPERTY(Meta = (BindWidget))
-    UButton* Button;
+    TObjectPtr<UButton> Button;
 
     UPROPERTY(Meta = (BindWidget))
-    UTextBlock* ButtonTextBlock;
+    TObjectPtr<UTextBlock> ButtonTextBlock;
 
     UPROPERTY(Meta = (BindWidgetAnim), Transient)
-    UWidgetAnimation* OnClickedAnimation;
+    TObjectPtr<UWidgetAnimation> OnClickedAnimation;
 
     UPROPERTY(Meta = (BindWidgetAnim), Transient)
-    UWidgetAnimation* OnHoveredAnimation;
+    TObjectPtr<UWidgetAnimation> OnHoveredAnimation;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
     FText ButtonText;
@@ -40,8 +40,6 @@ protected:
     virtual void NativePreConstruct() override;
 
 private:
-    void Setup();
-
     UFUNCTION()
     void OnClicked();
     UFUNCTION()

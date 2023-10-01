@@ -19,9 +19,8 @@ void UEPAnimatedUserWidget::ShowFadeoutAnimation()
 
 void UEPAnimatedUserWidget::SetGameState(EGameState NewGameState)
 {
-    const auto GameMode = GetWorld()->GetAuthGameMode<AEPGameMode>();
-    if (!GameMode)
-        return;
-
-    GameMode->SetGameState(NewGameState);
+    if (auto* GameMode = GetWorld()->GetAuthGameMode<AEPGameMode>())
+    {
+        GameMode->SetGameState(NewGameState);
+    }
 }

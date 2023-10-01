@@ -16,13 +16,13 @@ class EARTH_PROJECT_API UTimeSystemUserWidget : public UUserWidget
 
 protected:
     UPROPERTY(Meta = (BindWidget))
-    UTextBlock* SpeedText;
+    TObjectPtr<UTextBlock> SpeedText;
 
     UPROPERTY(Meta = (BindWidget))
-    USlider* SpeedSlider;
+    TObjectPtr<USlider> SpeedSlider;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Text")
-    int32 MinSpeedTextLength = 3;
+    int32 MinSpeedTextLength{3};
 
     virtual void NativeOnInitialized() override;
 

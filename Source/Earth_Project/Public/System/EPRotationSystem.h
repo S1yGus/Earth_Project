@@ -20,21 +20,21 @@ public:
     AEPRotationSystem();
 
 protected:
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-    UBillboardComponent* BillboardComponent;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    TObjectPtr<UBillboardComponent> BillboardComponent;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TimeSystem")
-    AEPSun* Sun;
+    TObjectPtr<AEPSun> Sun;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "TimeSystem")
-    AEPMoon* Moon;
+    TObjectPtr<AEPMoon> Moon;
 
     virtual void BeginPlay() override;
 
 private:
-    inline AEPGameMode* GetGameMode() const;
+    FORCEINLINE AEPGameMode* GetGameMode() const;
 
-    void OnTimeChanged(float Time);
+    void OnTimeChanged(float Seconds);
 
     void UpdateSunRotation();
     void UpdateMoonRotation();

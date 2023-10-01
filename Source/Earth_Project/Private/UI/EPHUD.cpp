@@ -15,9 +15,12 @@ void AEPHUD::BeginPlay()
 
     SetupWidgets();
 
-    if (const auto GameMode = GetWorld()->GetAuthGameMode<AEPGameMode>())
+    if (GetWorld())
     {
-        GameMode->OnGameStateChanged.AddUObject(this, &ThisClass::OnGameStateChanged);
+        if (auto* GameMode = GetWorld()->GetAuthGameMode<AEPGameMode>())
+        {
+            GameMode->OnGameStateChanged.AddUObject(this, &ThisClass::OnGameStateChanged);
+        }
     }
 }
 
@@ -30,31 +33,27 @@ void AEPHUD::SetupWidgets()
 
     for (const auto& [GameState, GameWidget] : GameWidgets)
     {
-        if (!GameWidget)
-            continue;
-
-        GameWidget->AddToViewport();
-        GameWidget->SetVisibility(ESlateVisibility::Collapsed);
+        if (GameWidget)
+        {
+            GameWidget->AddToViewport();
+            GameWidget->SetVisibility(ESlateVisibility::Collapsed);
+        }
     }
 }
 
 void AEPHUD::OnGameStateChanged(EGameState GameState)
 {
-    if (CurrentWidget)
-    {
-        CurrentWidget->SetVisibility(ESlateVisibility::Collapsed);
-    }
-
     if (GameWidgets.Contains(GameState))
     {
-        CurrentWidget = GameWidgets[GameState];
-    }
+        if (CurrentWidget)
+        {
+            CurrentWidget->SetVisibility(ESlateVisibility::Collapsed);
+        }
 
-    if (CurrentWidget)
-    {
+        CurrentWidget = GameWidgets[GameState];
         CurrentWidget->SetVisibility(ESlateVisibility::Visible);
 
-        if (const auto AnimatedWidget = Cast<UEPAnimatedUserWidget>(CurrentWidget))
+        if (auto* AnimatedWidget = Cast<UEPAnimatedUserWidget>(CurrentWidget))
         {
             AnimatedWidget->ShowStartupAnimation();
         }

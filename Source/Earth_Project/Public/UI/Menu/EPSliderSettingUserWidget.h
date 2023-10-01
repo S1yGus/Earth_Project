@@ -23,16 +23,16 @@ public:
 
 protected:
     UPROPERTY(Meta = (BindWidget))
-    UTextBlock* SettingNameText;
+    TObjectPtr<UTextBlock> SettingNameText;
 
     UPROPERTY(Meta = (BindWidget))
-    USlider* SettingSlider;
+    TObjectPtr<USlider> SettingSlider;
 
     UPROPERTY(Meta = (BindWidget))
-    UTextBlock* PercentText;
+    TObjectPtr<UTextBlock> PercentText;
 
     UPROPERTY()
-    UEPFloatSetting* Setting;
+    TObjectPtr<UEPFloatSetting> Setting;
 
     virtual void NativeOnInitialized() override;
 

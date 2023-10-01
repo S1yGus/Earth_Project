@@ -27,7 +27,7 @@ void UEPComboBoxSettingUserWidget::Update()
         SettingComboBox->AddOption(Option.ToString());
     }
 
-    const auto CurrentValue = Setting->GetCurrentValue();
+    const int32 CurrentValue = Setting->GetCurrentValue();
     if (CurrentValue != INDEX_NONE)
     {
         SettingComboBox->SetSelectedIndex(CurrentValue);

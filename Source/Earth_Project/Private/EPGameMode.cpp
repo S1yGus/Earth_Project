@@ -8,7 +8,7 @@
 
 using namespace TimeConstance;
 
-constexpr static float TimerRate = 0.016f;
+constexpr static float TimeChangeTimerRate{0.016f};
 
 AEPGameMode::AEPGameMode()
 {
@@ -19,12 +19,12 @@ AEPGameMode::AEPGameMode()
 
 float AEPGameMode::GetCurrentDay() const
 {
-    return FMath::Fmod((Time / SecondsInDay), DaysInYear) + 1.0f;    // The countdown starts from the first day.
+    return FMath::Fmod((Seconds / SecondsInDay), DaysInYear) + 1.0f;    // The countdown starts from the first day.
 }
 
 float AEPGameMode::GetCurrentHour() const
 {
-    return FMath::Fmod(Time, SecondsInDay) / SecondsInHour;
+    return FMath::Fmod(Seconds, SecondsInDay) / SecondsInHour;
 }
 
 float AEPGameMode::GetCurrentSpeedNormalized() const
@@ -56,12 +56,12 @@ void AEPGameMode::StartPlay()
 
     SetGameState(EGameState::Menu);
 
-    Time = (DaysInYear - Equinox + Day) * SecondsInDay + Hour * SecondsInHour + Minute * SecondsInMinute + Second;
-    GetWorldTimerManager().SetTimer(TimeTimerHandle, this, &ThisClass::OnTimeTick, TimerRate, true);
+    Seconds = (DaysInYear - Equinox + Day) * SecondsInDay + Hour * SecondsInHour + Minute * SecondsInMinute + Second;
+    GetWorldTimerManager().SetTimer(TimeChangeTimerHandle, this, &ThisClass::OnTimeChange, TimeChangeTimerRate, true);
 }
 
-void AEPGameMode::OnTimeTick()
+void AEPGameMode::OnTimeChange()
 {
-    Time += Speed * TimerRate;
-    OnTimeChanged.Broadcast(Time);
+    Seconds += Speed * TimeChangeTimerRate;
+    OnTimeChanged.Broadcast(Seconds);
 }

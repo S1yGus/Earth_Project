@@ -16,9 +16,9 @@ void UTimeSystemUserWidget::NativeOnInitialized()
     SpeedSlider->OnValueChanged.AddDynamic(this, &ThisClass::OnValueChanged);
     SpeedSlider->OnMouseCaptureEnd.AddDynamic(this, &ThisClass::OnMouseCaptureEnd);
 
-    if (const auto GameMode = GetWorld()->GetAuthGameMode<AEPGameMode>())
+    if (const auto* GameMode = GetWorld()->GetAuthGameMode<AEPGameMode>())
     {
-        const auto NormalizedCurrentSpeed = GameMode->GetCurrentSpeedNormalized();
+        const float NormalizedCurrentSpeed = GameMode->GetCurrentSpeedNormalized();
         SpeedSlider->SetValue(NormalizedCurrentSpeed);
         UpdateSpeedText(NormalizedCurrentSpeed);
     }
@@ -36,7 +36,7 @@ void UTimeSystemUserWidget::OnValueChanged(float Value)
 
 void UTimeSystemUserWidget::OnMouseCaptureEnd()
 {
-    if (const auto GameMode = GetWorld()->GetAuthGameMode<AEPGameMode>())
+    if (auto* GameMode = GetWorld()->GetAuthGameMode<AEPGameMode>())
     {
         GameMode->SetCurrentSpeedNormalized(SpeedSlider->GetNormalizedValue());
     }

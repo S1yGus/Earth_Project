@@ -18,7 +18,7 @@ public:
 
     AEPGameMode();
 
-    FTimespan GetCurrentTimespan() const { return FTimespan::FromSeconds(Time); }
+    FTimespan GetCurrentTimespan() const { return FTimespan::FromSeconds(Seconds); }
     float GetCurrentDay() const;
     float GetCurrentHour() const;
 
@@ -30,28 +30,27 @@ public:
 
 protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Speed", Meta = (ClampMin = "0.0"))
-    float Speed = 1.0f;
+    float Speed{1.0f};
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Speed", Meta = (ClampMin = "0.0"))
-    float MaxSpeed = 1000.0f;
+    float MaxSpeed{1000.0f};
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", Meta = (ClampMin = "1", ClampMax = "365"))
-    int32 Day = 1;
+    int32 Day{1};
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", Meta = (ClampMin = "0", ClampMax = "23"))
-    int32 Hour = 0;
+    int32 Hour{0};
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", Meta = (ClampMin = "0", ClampMax = "59"))
-    int32 Minute = 0;
+    int32 Minute{0};
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time", Meta = (ClampMin = "0", ClampMax = "59"))
-    int32 Second = 0;
+    int32 Second{0};
 
 private:
-    EGameState CurrentGameState = EGameState::WaitingToStart;
+    EGameState CurrentGameState{EGameState::WaitingToStart};
+    FTimerHandle TimeChangeTimerHandle;
+    double Seconds{0.0};
 
-    FTimerHandle TimeTimerHandle;
-    double Time = 0.0;
-
-    void OnTimeTick();
+    void OnTimeChange();
 };
